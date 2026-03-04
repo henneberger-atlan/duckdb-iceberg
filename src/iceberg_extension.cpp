@@ -18,6 +18,7 @@
 #include "storage/authorization/sigv4.hpp"
 #include "iceberg_utils.hpp"
 #include "iceberg_logging.hpp"
+#include <type_traits>
 
 namespace duckdb {
 
@@ -36,16 +37,10 @@ public:
 };
 
 template <class ConfigType>
-static auto RegisterStorageExtension(ConfigType &config, const string &name, unique_ptr<StorageExtension> extension,
-                                     int)
-    -> decltype(StorageExtension::Register(config, name, shared_ptr<StorageExtension>()), void()) {
-	StorageExtension::Register(config, name, shared_ptr<StorageExtension>(std::move(extension)));
-}
-
-template <class ConfigType>
-static void RegisterStorageExtension(ConfigType &config, const string &name, unique_ptr<StorageExtension> extension,
-                                     long) {
-	config.storage_extensions[name] = std::move(extension);
+static void RegisterStorageExtension(ConfigType &config, const string &name, unique_ptr<StorageExtension> extension) {
+	using storage_map_t = typename std::decay<decltype(config.storage_extensions)>::type;
+	using storage_value_t = typename storage_map_t::mapped_type;
+	config.storage_extensions[name] = storage_value_t(std::move(extension));
 }
 
 static void LoadInternal(ExtensionLoader &loader) {
@@ -95,7 +90,7 @@ static void LoadInternal(ExtensionLoader &loader) {
 
 	auto &log_manager = instance.GetLogManager();
 	log_manager.RegisterLogType(make_uniq<IcebergLogType>());
-	RegisterStorageExtension(config, "iceberg", make_uniq<IRCStorageExtension>(), 0);
+	RegisterStorageExtension(config, "iceberg", make_uniq<IRCStorageExtension>());
 }
 
 void IcebergExtension::Load(ExtensionLoader &loader) {

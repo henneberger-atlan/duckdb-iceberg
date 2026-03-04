@@ -286,6 +286,10 @@ SourceResultType IcebergInsert::GetDataInternal(ExecutionContext &context, DataC
 	return SourceResultType::FINISHED;
 }
 
+SourceResultType IcebergInsert::GetData(ExecutionContext &context, DataChunk &chunk, OperatorSourceInput &input) const {
+	return GetDataInternal(context, chunk, input);
+}
+
 //===--------------------------------------------------------------------===//
 // Finalize
 //===--------------------------------------------------------------------===//

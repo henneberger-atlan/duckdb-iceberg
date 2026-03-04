@@ -98,8 +98,9 @@ public:
 
 public:
 	// Source interface
+	SourceResultType GetData(ExecutionContext &context, DataChunk &chunk, OperatorSourceInput &input) const override;
 	SourceResultType GetDataInternal(ExecutionContext &context, DataChunk &chunk,
-	                                 OperatorSourceInput &input) const override;
+	                                 OperatorSourceInput &input) const;
 
 	bool IsSource() const override {
 		return true;
