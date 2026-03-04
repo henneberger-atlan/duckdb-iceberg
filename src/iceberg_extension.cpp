@@ -35,6 +35,19 @@ public:
 	}
 };
 
+template <class ConfigType>
+static auto RegisterStorageExtension(ConfigType &config, const string &name, unique_ptr<StorageExtension> extension,
+                                     int)
+    -> decltype(StorageExtension::Register(config, name, shared_ptr<StorageExtension>()), void()) {
+	StorageExtension::Register(config, name, shared_ptr<StorageExtension>(std::move(extension)));
+}
+
+template <class ConfigType>
+static void RegisterStorageExtension(ConfigType &config, const string &name, unique_ptr<StorageExtension> extension,
+                                     long) {
+	config.storage_extensions[name] = std::move(extension);
+}
+
 static void LoadInternal(ExtensionLoader &loader) {
 	auto &instance = loader.GetDatabaseInstance();
 	ExtensionHelper::AutoLoadExtension(instance, "parquet");
@@ -82,7 +95,7 @@ static void LoadInternal(ExtensionLoader &loader) {
 
 	auto &log_manager = instance.GetLogManager();
 	log_manager.RegisterLogType(make_uniq<IcebergLogType>());
-	StorageExtension::Register(config, "iceberg", make_shared_ptr<IRCStorageExtension>());
+	RegisterStorageExtension(config, "iceberg", make_uniq<IRCStorageExtension>(), 0);
 }
 
 void IcebergExtension::Load(ExtensionLoader &loader) {

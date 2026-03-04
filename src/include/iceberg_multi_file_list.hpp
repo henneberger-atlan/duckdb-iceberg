@@ -88,15 +88,23 @@ public:
 	                                                TableFilterSet &filters) const override;
 	unique_ptr<MultiFileList> ComplexFilterPushdown(ClientContext &context, const MultiFileOptions &options,
 	                                                MultiFilePushdownInfo &info,
-	                                                vector<unique_ptr<Expression>> &filters) const override;
-	vector<OpenFileInfo> GetAllFiles() const override;
-	FileExpandResult GetExpandResult() const override;
-	idx_t GetTotalFileCount() const override;
-	unique_ptr<NodeStatistics> GetCardinality(ClientContext &context) const override;
+	                                                vector<unique_ptr<Expression>> &filters) const;
+	unique_ptr<MultiFileList> ComplexFilterPushdown(ClientContext &context, const MultiFileOptions &options,
+	                                                MultiFilePushdownInfo &info,
+	                                                vector<unique_ptr<Expression>> &filters);
+	vector<OpenFileInfo> GetAllFiles() const;
+	vector<OpenFileInfo> GetAllFiles();
+	FileExpandResult GetExpandResult() const;
+	FileExpandResult GetExpandResult();
+	idx_t GetTotalFileCount() const;
+	idx_t GetTotalFileCount();
+	unique_ptr<NodeStatistics> GetCardinality(ClientContext &context) const;
+	unique_ptr<NodeStatistics> GetCardinality(ClientContext &context);
 
 protected:
 	//! Get the i-th expanded file
-	OpenFileInfo GetFile(idx_t i) const override;
+	OpenFileInfo GetFile(idx_t i) const;
+	OpenFileInfo GetFile(idx_t i);
 	OpenFileInfo GetFileInternal(idx_t i, lock_guard<mutex> &guard) const;
 
 protected:

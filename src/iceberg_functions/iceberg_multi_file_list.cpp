@@ -284,6 +284,13 @@ unique_ptr<MultiFileList> IcebergMultiFileList::ComplexFilterPushdown(ClientCont
 	return PushdownInternal(context, filter_set);
 }
 
+unique_ptr<MultiFileList> IcebergMultiFileList::ComplexFilterPushdown(ClientContext &context,
+                                                                      const MultiFileOptions &options,
+                                                                      MultiFilePushdownInfo &info,
+                                                                      vector<unique_ptr<Expression>> &filters) {
+	return const_cast<const IcebergMultiFileList *>(this)->ComplexFilterPushdown(context, options, info, filters);
+}
+
 vector<OpenFileInfo> IcebergMultiFileList::GetAllFiles() const {
 	vector<OpenFileInfo> file_list;
 	//! Lock is required because it reads the 'manifest_entries' vector
@@ -292,6 +299,10 @@ vector<OpenFileInfo> IcebergMultiFileList::GetAllFiles() const {
 		file_list.push_back(GetFileInternal(i, guard));
 	}
 	return file_list;
+}
+
+vector<OpenFileInfo> IcebergMultiFileList::GetAllFiles() {
+	return const_cast<const IcebergMultiFileList *>(this)->GetAllFiles();
 }
 
 FileExpandResult IcebergMultiFileList::GetExpandResult() const {
@@ -304,6 +315,10 @@ FileExpandResult IcebergMultiFileList::GetExpandResult() const {
 	return FileExpandResult::MULTIPLE_FILES;
 }
 
+FileExpandResult IcebergMultiFileList::GetExpandResult() {
+	return const_cast<const IcebergMultiFileList *>(this)->GetExpandResult();
+}
+
 idx_t IcebergMultiFileList::GetTotalFileCount() const {
 	// FIXME: the 'added_files_count' + the 'existing_files_count'
 	// in the Manifest List should give us this information without scanning the manifest list
@@ -314,6 +329,10 @@ idx_t IcebergMultiFileList::GetTotalFileCount() const {
 		i++;
 	}
 	return manifest_entries.size();
+}
+
+idx_t IcebergMultiFileList::GetTotalFileCount() {
+	return const_cast<const IcebergMultiFileList *>(this)->GetTotalFileCount();
 }
 
 unique_ptr<NodeStatistics> IcebergMultiFileList::GetCardinality(ClientContext &context) const {
@@ -336,6 +355,10 @@ unique_ptr<NodeStatistics> IcebergMultiFileList::GetCardinality(ClientContext &c
 		cardinality -= delete_manifests[i].added_rows_count;
 	}
 	return make_uniq<NodeStatistics>(cardinality, cardinality);
+}
+
+unique_ptr<NodeStatistics> IcebergMultiFileList::GetCardinality(ClientContext &context) {
+	return const_cast<const IcebergMultiFileList *>(this)->GetCardinality(context);
 }
 
 void IcebergMultiFileList::GetStatistics(vector<PartitionStatistics> &result) const {
@@ -695,6 +718,10 @@ OpenFileInfo IcebergMultiFileList::GetFileInternal(idx_t file_id, lock_guard<mut
 OpenFileInfo IcebergMultiFileList::GetFile(idx_t file_id) const {
 	lock_guard<mutex> guard(lock);
 	return GetFileInternal(file_id, guard);
+}
+
+OpenFileInfo IcebergMultiFileList::GetFile(idx_t file_id) {
+	return const_cast<const IcebergMultiFileList *>(this)->GetFile(file_id);
 }
 
 bool IcebergMultiFileList::ManifestMatchesFilter(const IcebergManifestFile &manifest) const {
